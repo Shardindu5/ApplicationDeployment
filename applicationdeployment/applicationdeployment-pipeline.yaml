@@ -1,0 +1,47 @@
+name: $(BuildID)
+trigger: none
+pool: 
+  vmImage: 'ubuntu-latest'
+variables:
+  - template: variables.yaml
+stages:
+- stage: 'Build'
+  jobs:
+  - job: 'BuildJob'
+    displayName: 'Build Azure Function App Code'
+    steps:
+    - checkout: self
+
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.x'
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore solution'
+      inputs:
+        command: 'restore'
+        projects: ${{variables.projectDirectory}}
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build solution'
+      inputs:
+        command: 'build'
+        projects: '${{variables.projectDirectory}}'
+        arguments: '--configuration ${{variables.buildConfiguration}}'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish project'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: ${{variables.projectDirectory}}
+        arguments: '--configuration ${{variables.buildConfiguration}} --output $(Build.ArtifactStagingDirectory)\HelloWorldApp'
+        zipAfterPublish: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish build artifacts'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)\HelloWorldApp'
+        artifact: 'HelloWorldApp'
