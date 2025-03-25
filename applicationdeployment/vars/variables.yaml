@@ -1,0 +1,5 @@
+variables:
+  - name: 'buildConfiguration'
+    value: 'Release'
+  - name: 'projectDirectory'
+    value: '$(Build.SourcesDirectory)/HelloWorldApp/HelloWorldApp.csproj'
