@@ -36,7 +36,7 @@ jobs:
         run: dotnet publish "$PROJECT_DIRECTORY" --configuration "$BUILD_CONFIGURATION" --output ./artifact --no-build
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: HelloWorldApp
           path: ./artifact
