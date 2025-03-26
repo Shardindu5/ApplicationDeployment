@@ -1,0 +1,42 @@
+name: Build Dotnet app
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_CONFIGURATION: 'Release'
+      PROJECT_DIRECTORY: ${{ github.workspace }}/HelloWorldApp/HelloWorldApp.csproj
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore "$PROJECT_DIRECTORY"
+
+      - name: Build Solution
+        run: dotnet build "$PROJECT_DIRECTORY" --configuration "$BUILD_CONFIGURATION"
+
+      - name: Publish Project
+        run: dotnet publish "$PROJECT_DIRECTORY" --configuration "$BUILD_CONFIGURATION" --output ./artifact --no-build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: HelloWorldApp
+          path: ./artifact
